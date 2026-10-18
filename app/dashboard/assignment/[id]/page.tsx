@@ -37,7 +37,7 @@ function AssignmentContent() {
 
     if (assignment.type === "homework") {
       if (!textAnswer) {
-        setMessage("Введите ответ.");
+        setMessage("Введи ответ.");
         setIsUploading(false);
         return;
       }
@@ -54,7 +54,7 @@ function AssignmentContent() {
       else setMessage("Ответ успешно отправлен!");
     } else {
       if (!file) {
-        setMessage("Выберите файл.");
+        setMessage("Выбери файл.");
         setIsUploading(false);
         return;
       }
@@ -147,11 +147,11 @@ function AssignmentContent() {
 
           <hr className="my-8" />
 
-          <h2 className="text-xl font-bold mb-4">Ваш ответ</h2>
+          <h2 className="text-xl font-bold mb-4">Твой ответ</h2>
 
           {assignment.type === "homework" ? (
             <textarea
-              placeholder="Введите ваш ответ здесь..."
+              placeholder="Введи свой ответ здесь..."
               value={textAnswer}
               onChange={(e) => setTextAnswer(e.target.value)}
               className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:border-purple-500 min-h-32 mb-4"
