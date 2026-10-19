@@ -11,6 +11,7 @@ function AssignmentContent() {
   const [textAnswer, setTextAnswer] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [message, setMessage] = useState("");
+  const [checkResult, setCheckResult] = useState<boolean | null>(null); // Результат автопроверки
 
   const params = useParams();
   const router = useRouter();
@@ -36,22 +37,39 @@ function AssignmentContent() {
     } = await supabase.auth.getUser();
 
     if (assignment.type === "homework") {
-      if (!textAnswer) {
+      if (!textAnswer.trim()) {
         setMessage("Введи ответ.");
         setIsUploading(false);
         return;
       }
+
+      // --- АВТОПРОВЕРКА ---
+      // Сравниваем без учета регистра и лишних пробелов
+      const studentAns = textAnswer.trim().toLowerCase();
+      const teacherAns = assignment.correct_answer?.trim().toLowerCase() || "";
+      const isCorrect = studentAns === teacherAns;
+
+      setCheckResult(isCorrect);
 
       const { error } = await supabase.from("submissions").insert({
         assignment_id: assignmentId,
         student_id: user?.id,
         status: "submitted",
         text_answer: textAnswer,
+        is_correct: isCorrect, // Сохраняем результат проверки
         submitted_at: new Date().toISOString(),
       });
 
       if (error) setMessage("Ошибка: " + error.message);
-      else setMessage("Ответ успешно отправлен!");
+      else {
+        if (isCorrect) {
+          setMessage("Правильно! Твой ответ отправлен Жене.");
+        } else {
+          setMessage(
+            "Неверно. Твой ответ отправлен Жене, он посмотрит и даст комментарий.",
+          );
+        }
+      }
     } else {
       if (!file) {
         setMessage("Выбери файл.");
@@ -172,12 +190,19 @@ function AssignmentContent() {
             {isUploading ? "Отправка..." : "Отправить на проверку"}
           </button>
 
+          {/* Красивое отображение результата */}
           {message && (
-            <p
-              className={`mt-4 font-medium ${message.includes("Ошибка") ? "text-red-500" : "text-green-600"}`}
+            <div
+              className={`mt-6 p-4 rounded-xl font-bold border ${
+                checkResult === true
+                  ? "bg-green-100 border-green-300 text-green-800"
+                  : checkResult === false
+                    ? "bg-red-100 border-red-300 text-red-800"
+                    : "bg-gray-100 border-gray-300 text-gray-800"
+              }`}
             >
               {message}
-            </p>
+            </div>
           )}
         </div>
       </div>

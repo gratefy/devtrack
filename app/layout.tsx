@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Unbounded } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "next-themes";
 
-// Подключаем шрифт Unbounded с поддержкой кириллицы
 const unbounded = Unbounded({
   subsets: ["latin", "cyrillic"],
   variable: "--font-unbounded",
@@ -19,10 +19,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru">
-      {/* Применяем класс шрифта к телу страницы */}
+    <html lang="ru" suppressHydrationWarning>
       <body className={`${unbounded.variable} font-sans antialiased`}>
-        {children}
+        <ThemeProvider attribute="class" defaultTheme="light">
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
